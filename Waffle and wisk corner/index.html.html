@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waffle & Whisk Corner | Where Every Corner is Sweet</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        purple: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            200: '#e9d5ff',
+                            300: '#d8b4fe',
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7e22ce',
+                            800: '#6b21a8',
+                            900: '#581c87',
+                        },
+                        cream: '#FFFDF9',
+                        chocDark: '#2D1B36',
+                        chocSoft: '#452952',
+                        berryRed: '#E63946',
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FFFDF9;
+            color: #2D1B36;
+        }
+        .waffle-card {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .waffle-card.selected {
+            border-color: #9333ea;
+            background-color: #faf5ff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(147, 51, 234, 0.2);
+        }
+        .cart-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .cart-scroll::-webkit-scrollbar-thumb {
+            background-color: #a855f7;
+            border-radius: 9999px;
+        }
+        .glass-nav {
+            background: rgba(255, 253, 249, 0.92);
+            backdrop-filter: blur(10px);
+        }
+        .swiper-button-next, .swiper-button-prev {
+            color: #c084fc !important;
+            transition: 0.3s;
+        }
+        .swiper-button-next:hover, .swiper-button-prev:hover {
+            color: #f3e8ff !important;
+        }
+        .swiper-pagination-bullet-active {
+            background: #a855f7 !important;
+        }
+        .btn-bounce {
+            animation: popBtn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popBtn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-30 glass-nav border-b border-purple-100 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 sm:px-6 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-md">
+                    <i class="fa-solid font-bold text-xl fa-stroopwafel"></i>
+                </div>
+                <div>
+                    <h1 class="font-serif font-extrabold text-xl sm:text-2xl text-chocDark tracking-tight leading-none">
+                        WAFFLE & WHISK <span class="text-purple-600">CORNER</span>
+                    </h1>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <p class="text-xs font-medium text-purple-700 italic">Where Every Corner is Sweet</p>
+                        <span class="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
+                            <i class="fa-regular fa-clock mr-1"></i> 08:00 - 19:00 (Delivery from 10:00)
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cart Trigger Button -->
+            <button onclick="toggleCart()" class="relative bg-chocDark hover:bg-chocSoft text-white px-4 py-2.5 rounded-full font-semibold flex items-center gap-2 transition duration-200 shadow-md hover:shadow-lg active:scale-95">
+                <i class="fa-solid fa-basket-shopping text-purple-400"></i>
+                <span class="hidden sm:inline">My Basket</span>
+                <span id="cartBadgeCount" class="bg-purple-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Floating Side Quick Access Bar -->
+    <div id="floatingSideCartBtn" class="fixed right-3 sm:right-6 bottom-6 z-40 flex items-center gap-2 bg-chocDark/95 backdrop-blur-md p-2 rounded-full shadow-2xl border border-purple-500/40">
+        <div class="flex items-center gap-1 bg-chocSoft px-2.5 py-1.5 rounded-full border border-purple-500/30">
+            <button onclick="changeQuantity(-1)" id="btnMinusFloating" class="text-purple-300 hover:text-white font-bold text-lg px-2 disabled:opacity-40 transition" disabled>-</button>
+            <span id="floatingQty" class="font-bold text-white text-sm min-w-[1.25rem] text-center">1</span>
+            <button onclick="changeQuantity(1)" class="text-purple-300 hover:text-white font-bold text-lg px-2 transition">+</button>
+        </div>
+
+        <button onclick="addToCart()" class="bg-purple-600 hover:bg-purple-500 active:scale-95 text-white font-bold py-2.5 px-4 rounded-full flex items-center gap-2 transition-all duration-200 shadow-lg">
+            <i class="fa-solid fa-basket-shopping text-xs text-purple-200"></i>
+            <span class="text-xs sm:text-sm font-semibold">Add to Basket</span>
+            <span id="floatingSideSubtotal" class="bg-purple-900/80 text-purple-200 text-xs px-2.5 py-0.5 rounded-full font-serif font-bold border border-purple-400/20">R15.00</span>
+        </button>
+    </div>
+
+    <!-- Hero Banner Slider -->
+    <section class="relative w-full h-[320px] sm:h-[420px] bg-chocDark border-b border-purple-200">
+        <div class="swiper mySwiper w-full h-full">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide flex items-center justify-center relative overflow-hidden">
+                    <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover object-center opacity-40">
+                        <source src="videos/tacoffles.mp4" type="video/mp4">
+                    </video>
+                    <div class="absolute inset-0 bg-gradient-to-t from-chocDark via-transparent to-transparent"></div>
+                    <div class="relative z-10 text-center max-w-2xl px-4" data-swiper-parallax="-300" data-swiper-parallax-opacity="0">
+                        <span class="inline-block bg-purple-500/80 text-white text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 shadow-lg">Crafted Fresh To Order</span>
+                        <h2 class="text-4xl sm:text-5xl font-serif font-bold mb-4 text-white drop-shadow-xl">Design Your Sweet Treat</h2>
+                        <p class="text-sm sm:text-base text-purple-100 drop-shadow-md">Pick your waffle or crepe base, pile on extra add-ons, and order directly to our store via WhatsApp!</p>
+                    </div>
+                </div>
+
+                <div class="swiper-slide flex items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[url('images/creepes.jpeg')] bg-cover bg-center opacity-40"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-chocDark via-transparent to-transparent"></div>
+                    <div class="relative z-10 text-center max-w-2xl px-4" data-swiper-parallax="-300" data-swiper-parallax-opacity="0">
+                        <span class="inline-block bg-purple-500/80 text-white text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 shadow-lg">Try Our Crepesushi</span>
+                        <h2 class="text-4xl sm:text-5xl font-serif font-bold mb-4 text-white drop-shadow-xl">Sweet Crepe Sushi Rolls</h2>
+                        <p class="text-sm sm:text-base text-purple-100 drop-shadow-md">Delicious crepe rolls filled with sweet banana, fresh strawberries, and chocolate sauce!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next hidden sm:flex"></div>
+            <div class="swiper-button-prev hidden sm:flex"></div>
+        </div>
+    </section>
+
+    <!-- Interactive Progress Tracker Bar -->
+    <div class="bg-purple-50 border-b border-purple-100 py-3">
+        <div class="max-w-6xl mx-auto px-4 flex justify-around items-center text-xs font-bold text-chocDark">
+            <div id="stepTracker1" class="flex items-center gap-2 text-purple-700">
+                <span class="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px]">1</span>
+                <span>Choose Item</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-purple-300 text-[10px]"></i>
+            <div id="stepTracker2" class="flex items-center gap-2 text-gray-400">
+                <span class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-[11px]">2</span>
+                <span>Select Extras</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-purple-300 text-[10px]"></i>
+            <div id="stepTracker3" class="flex items-center gap-2 text-gray-400">
+                <span class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-[11px]">3</span>
+                <span>Add to Basket</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Category Quick Filter Toolbar -->
+    <div class="max-w-6xl mx-auto px-4 pt-6 sm:px-6">
+        <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+            <!-- Search Bar -->
+            <div class="relative w-full md:w-72">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 text-sm"></i>
+                <input type="text" id="menuSearchInput" oninput="handleSearch(this.value)" placeholder="Search menu (e.g. Strawberry)..." 
+                       class="w-full pl-9 pr-8 py-2 bg-purple-50/50 border border-purple-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition">
+                <button onclick="clearSearch()" id="btnClearSearch" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 text-xs">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
+                <button onclick="filterCategory('all')" id="filter-btn-all" class="px-3 py-1.5 text-xs font-bold rounded-full transition whitespace-nowrap bg-purple-600 text-white shadow-sm">All Treats</button>
+                <button onclick="filterCategory('waffles')" id="filter-btn-waffles" class="px-3 py-1.5 text-xs font-bold rounded-full transition whitespace-nowrap bg-purple-50 text-purple-700 hover:bg-purple-100">Waffles</button>
+                <button onclick="filterCategory('pops')" id="filter-btn-pops" class="px-3 py-1.5 text-xs font-bold rounded-full transition whitespace-nowrap bg-purple-50 text-purple-700 hover:bg-purple-100">Pops</button>
+                <button onclick="filterCategory('crepes')" id="filter-btn-crepes" class="px-3 py-1.5 text-xs font-bold rounded-full transition whitespace-nowrap bg-purple-50 text-purple-700 hover:bg-purple-100">Crepes</button>
+                <button onclick="filterCategory('crepesushi')" id="filter-btn-crepesushi" class="px-3 py-1.5 text-xs font-bold rounded-full transition whitespace-nowrap bg-purple-50 text-purple-700 hover:bg-purple-100">Crepesushi</button>
+                <button onclick="filterCategory('tacoffles')" id="filter-btn-tacoffles" class="px-3 py-1.5 text-xs font-bold rounded-full transition whitespace-nowrap bg-purple-50 text-purple-700 hover:bg-purple-100">Tacoffles</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Interactive Menu Section -->
+    <main class="max-w-6xl mx-auto px-4 py-6 sm:px-6 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Form Customizer -->
+        <section class="lg:col-span-8 space-y-8">
+            
+            <!-- STEP 1: Select Base Item -->
+            <div class="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-3 border-b border-purple-50">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 bg-purple-500 text-white rounded-full font-bold flex items-center justify-center text-sm">1</span>
+                        <h3 class="text-lg font-bold text-chocDark">Choose Your Item</h3>
+                    </div>
+                    <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">* Select one or click Add-ons button</span>
+                </div>
+
+                <!-- Menu Waffles -->
+                <p id="header-waffles" class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-stroopwafel"></i> Menu Waffles
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8" id="wafflesContainer"></div>
+
+                <!-- Waffle Pops -->
+                <p id="header-pops" class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-candy-cane"></i> Waffle Pops
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8" id="popsContainer"></div>
+
+                <!-- Crepes -->
+                <p id="header-crepes" class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-utensils"></i> Crepes
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8" id="crepesContainer"></div>
+
+                <!-- Crepesushi -->
+                <p id="header-crepesushi" class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-utensils"></i> Crepesushi
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8" id="crepesushiContainer"></div>
+
+                <!-- Tacoffles -->
+                <p id="header-tacoffles" class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-box-tissue"></i> Tacoffles
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="tacofflesContainer"></div>
+            </div>
+
+            <!-- STEP 2: Extra Add-ons -->
+            <div class="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-purple-50">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 bg-purple-500 text-white rounded-full font-bold flex items-center justify-center text-sm">2</span>
+                        <h3 class="text-lg font-bold text-chocDark">Add Extra Add-ons</h3>
+                    </div>
+                    <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">Optional</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="addonsContainer"></div>
+            </div>
+
+            <!-- STEP 3: Special Notes -->
+            <div class="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="w-7 h-7 bg-purple-500 text-white rounded-full font-bold flex items-center justify-center text-sm">3</span>
+                    <h3 class="text-lg font-bold text-chocDark">Custom Requests / Notes</h3>
+                </div>
+                <textarea id="itemNotes" placeholder="e.g. Extra sauce on the side, extra crispy..." class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none h-20"></textarea>
+            </div>
+
+        </section>
+
+        <!-- Right: Live Summary Sidebar -->
+        <aside class="lg:col-span-4 sticky top-24">
+            <div class="bg-chocDark text-white p-6 rounded-2xl shadow-xl border border-chocSoft space-y-6">
+                <div class="flex items-center justify-between border-b border-chocSoft pb-4">
+                    <h3 class="font-serif font-bold text-xl text-purple-300">Current Creation</h3>
+                    <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i>
+                </div>
+
+                <!-- Live Selection Review -->
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <span class="text-xs uppercase text-purple-400/80 font-bold tracking-wider">Item Type</span>
+                        <p id="summaryCategoryName" class="text-xs font-bold text-purple-300 uppercase block mt-0.5">-</p>
+                        <p id="summaryBaseName" class="font-semibold text-base text-purple-50">Select an item</p>
+                    </div>
+
+                    <div>
+                        <span class="text-xs uppercase text-purple-400/80 font-bold tracking-wider">Selected Add-ons</span>
+                        <ul id="summaryAddonsList" class="text-xs text-gray-300 mt-1 space-y-1 list-disc list-inside">
+                            <li class="italic text-gray-400">No extra add-ons selected</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Quantity Controller -->
+                <div class="pt-4 border-t border-chocSoft flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-200">Quantity</span>
+                    <div class="flex items-center gap-3 bg-chocSoft px-3 py-1.5 rounded-xl border border-purple-500/20">
+                        <button onclick="changeQuantity(-1)" class="text-purple-400 hover:text-purple-300 font-bold text-lg px-2 disabled:opacity-40" id="btnMinus" disabled>-</button>
+                        <span id="itemQuantity" class="font-bold text-white text-base">1</span>
+                        <button onclick="changeQuantity(1)" class="text-purple-400 hover:text-purple-300 font-bold text-lg px-2">+</button>
+                    </div>
+                </div>
+
+                <!-- Live Subtotal -->
+                <div class="pt-4 border-t border-chocSoft flex items-end justify-between">
+                    <div>
+                        <span class="text-xs text-gray-400 uppercase tracking-wider">Subtotal</span>
+                        <p class="text-xs text-gray-400">Incl. VAT</p>
+                    </div>
+                    <span id="liveTotalPrice" class="text-3xl font-extrabold text-purple-400 font-serif">R0.00</span>
+                </div>
+
+                <button id="mainAddToBasketBtn" onclick="addToCart()" class="w-full bg-purple-600 hover:bg-purple-500 active:scale-98 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition duration-200 shadow-lg text-base">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add to Basket</span>
+                </button>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Item-Specific Add-ons Quick Modal -->
+    <div id="itemAddonsModal" class="fixed inset-0 z-50 hidden bg-chocDark/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-purple-200 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-chocDark text-white p-4 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] uppercase font-bold text-purple-300 tracking-wider">Customize Treat</span>
+                    <h3 id="modalItemTitleName" class="font-serif font-bold text-lg text-white">Item Name</h3>
+                </div>
+                <button onclick="closeItemAddonsModal()" class="w-8 h-8 rounded-full bg-black/40 hover:bg-purple-600 text-white flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-4 flex-grow">
+                <div class="flex items-center gap-3 bg-purple-50 p-3 rounded-xl border border-purple-100">
+                    <img id="modalItemImg" src="" alt="" class="w-16 h-16 object-contain rounded-lg bg-white p-1 border border-purple-200">
+                    <div>
+                        <p id="modalItemBasePrice" class="text-xs font-bold text-purple-700">Base: R0.00</p>
+                        <p class="text-xs text-gray-500">Select your extra add-ons below for this item!</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Available Extras & Add-ons</h4>
+                    <div id="modalAddonsContainer" class="space-y-2"></div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Quantity</label>
+                    <div class="flex items-center gap-3 bg-purple-50 px-3 py-2 rounded-xl border border-purple-200 w-fit">
+                        <button onclick="changeModalQty(-1)" class="text-purple-700 font-bold text-base px-2">-</button>
+                        <span id="modalItemQty" class="font-bold text-chocDark text-base min-w-[1.25rem] text-center">1</span>
+                        <button onclick="changeModalQty(1)" class="text-purple-700 font-bold text-base px-2">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-cream border-t border-purple-100 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-gray-500 block">Total</span>
+                    <span id="modalItemTotalPrice" class="font-serif font-bold text-2xl text-purple-700">R0.00</span>
+                </div>
+                <button onclick="addModalItemToCart()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-basket-shopping"></i> Add to Basket
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Showcase Section -->
+    <section class="max-w-6xl mx-auto px-4 py-12 sm:px-6 w-full border-t border-purple-100">
+        <div class="text-center max-w-2xl mx-auto mb-8">
+            <span class="text-xs font-bold text-purple-600 uppercase tracking-widest bg-purple-50 px-3 py-1.5 rounded-full border border-purple-100">
+                <i class="fa-solid fa-film text-purple-500 mr-1"></i> Sweet Sneak Peek
+            </span>
+            <h3 class="text-3xl font-serif font-bold text-chocDark mt-3">Watch Our Desserts In Action</h3>
+            <p class="text-sm text-gray-600 mt-2">Take a look at how our signature crepes, rolls, and tacoffles are styled and served fresh!</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div class="bg-white rounded-2xl overflow-hidden border border-purple-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
+                <div class="relative aspect-video w-full bg-chocDark overflow-hidden">
+                    <video controls loop muted playsinline class="w-full h-full object-cover object-center">
+                        <source src="videos/creepes.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="p-4 flex flex-col justify-between flex-grow">
+                    <div>
+                        <span class="text-[10px] font-bold text-purple-600 uppercase tracking-wider">Crepesushi</span>
+                        <h4 class="font-serif font-bold text-lg text-chocDark mt-0.5">Strawberry Crepesushi</h4>
+                        <p class="text-xs text-gray-500 mt-1">Rolled crepe slices packed with strawberry filling and rich chocolate drizzle.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl overflow-hidden border border-purple-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
+                <div class="relative aspect-video w-full bg-chocDark overflow-hidden">
+                    <video controls loop muted playsinline class="w-full h-full object-cover object-center">
+                        <source src="videos/crepes-folded.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="p-4 flex flex-col justify-between flex-grow">
+                    <div>
+                        <span class="text-[10px] font-bold text-purple-600 uppercase tracking-wider">Crepes</span>
+                        <h4 class="font-serif font-bold text-lg text-chocDark mt-0.5">Classic Folded Crepes</h4>
+                        <p class="text-xs text-gray-500 mt-1">Warm folded crepe triangles topped with sliced fresh strawberries & chocolate.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl overflow-hidden border border-purple-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
+                <div class="relative aspect-video w-full bg-chocDark overflow-hidden">
+                    <video controls loop muted playsinline class="w-full h-full object-cover object-center">
+                        <source src="videos/tacoffles.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="p-4 flex flex-col justify-between flex-grow">
+                    <div>
+                        <span class="text-[10px] font-bold text-purple-600 uppercase tracking-wider">Tacoffles</span>
+                        <h4 class="font-serif font-bold text-lg text-chocDark mt-0.5">Loaded Tacoffles</h4>
+                        <p class="text-xs text-gray-500 mt-1">Taco-shaped waffle shells stacked with cream, crushed biscuits, and fruit.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Preview Lightbox Modal -->
+    <div id="videoModal" class="fixed inset-0 z-50 hidden bg-chocDark/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeVideoModal()">
+        <div class="relative bg-chocDark rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl border border-purple-500/30" onclick="event.stopPropagation()">
+            <button onclick="closeVideoModal()" class="absolute top-3 right-3 text-white bg-black/60 hover:bg-purple-600 w-8 h-8 rounded-full flex items-center justify-center text-sm z-10 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="relative aspect-video w-full bg-black">
+                <video id="modalVideoPlayer" controls autoplay muted playsinline class="w-full h-full object-contain"></video>
+            </div>
+            <div class="p-4 bg-chocDark text-center">
+                <p id="modalVideoTitle" class="text-sm font-bold text-purple-200 font-serif"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Overlay -->
+    <div id="cartOverlay" class="fixed inset-0 bg-chocDark/60 backdrop-blur-sm z-40 hidden transition-opacity" onclick="toggleCart()"></div>
+
+    <!-- Cart Sidebar Drawer -->
+    <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-cream">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-basket-shopping text-purple-600 text-xl"></i>
+                <h3 class="font-serif font-bold text-xl text-chocDark">Your Order Basket</h3>
+            </div>
+            <button onclick="toggleCart()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="cartItemsContainer" class="p-5 flex-grow overflow-y-auto cart-scroll space-y-4"></div>
+
+        <div class="p-5 border-t border-gray-100 bg-cream space-y-4">
+            <div class="space-y-1.5 text-sm">
+                <div class="flex justify-between text-gray-600">
+                    <span>Items Total</span>
+                    <span id="cartSubtotal" class="font-semibold text-chocDark">R0.00</span>
+                </div>
+                <div class="flex justify-between text-lg font-bold text-chocDark pt-2 border-t border-gray-200">
+                    <span>Grand Total</span>
+                    <span id="cartGrandTotal" class="text-purple-600 font-serif">R0.00</span>
+                </div>
+            </div>
+
+            <button id="checkoutBtn" onclick="openCheckoutModal()" class="w-full bg-chocDark hover:bg-chocSoft text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span>Proceed to Checkout</span>
+                <i class="fa-solid fa-arrow-right text-purple-400"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-chocDark/70 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-chocDark text-white p-5 flex items-center justify-between">
+                <div>
+                    <h3 class="font-serif font-bold text-xl text-purple-300">Complete Your Order</h3>
+                    <p class="text-xs text-gray-300">Enter your details to send your order via WhatsApp</p>
+                </div>
+                <button onclick="closeCheckoutModal()" class="text-gray-300 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="orderForm" onsubmit="handleOrderSubmit(event)" class="p-6 space-y-4 overflow-y-auto">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Your Full Name *</label>
+                    <input type="text" id="custName" autocomplete="name" required placeholder="e.g. Sarah Smith" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Phone Number *</label>
+                    <input type="tel" id="custPhone" autocomplete="tel" required placeholder="e.g. 082 123 4567" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Fulfillment Option *</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="border border-gray-200 rounded-xl p-3 flex items-center gap-2 cursor-pointer hover:border-purple-500">
+                            <input type="radio" name="orderType" value="Store Pickup" checked class="accent-purple-600">
+                            <span class="text-sm font-semibold text-gray-800">Store Pickup</span>
+                        </label>
+                        <label class="border border-gray-200 rounded-xl p-3 flex items-start gap-2 cursor-pointer hover:border-purple-500">
+                            <input type="radio" name="orderType" value="Delivery" class="accent-purple-600 mt-1">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold text-gray-800">Local Delivery</span>
+                                <span class="text-[10px] text-purple-600 leading-tight uppercase font-bold">Starts at 10:00 • Fee Depends on Area</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Delivery Address / Pickup Notes</label>
+                    <input type="text" id="custAddress" autocomplete="street-address" placeholder="e.g. Pickup around 2:30 PM or delivery address" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                </div>
+
+                <!-- Banking Details Notice Box (Placeholder version) -->
+                <div class="bg-purple-900/10 border border-purple-200 rounded-xl p-4 text-xs space-y-2">
+                    <div class="flex items-center justify-between text-purple-900 font-bold">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-building-columns text-purple-600"></i>
+                            Banking Details for EFT / Capitec Pay
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-gray-700 font-mono text-[11px] bg-white p-2.5 rounded-lg border border-purple-100">
+                        <div>
+                            <span class="text-gray-400 block text-[10px] uppercase font-sans">Bank</span>
+                            <span class="font-bold text-chocDark">Capitec Bank</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block text-[10px] uppercase font-sans">Account Holder</span>
+                            <span class="font-bold text-chocDark">[YOUR BUSINESS NAME]</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block text-[10px] uppercase font-sans">Account Number</span>
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-purple-700">1234567890</span>
+                                <button type="button" onclick="copyToClipboard('1234567890', 'Account number copied!')" class="text-purple-600 hover:text-purple-800 text-[10px]" title="Copy Account">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block text-[10px] uppercase font-sans">Capitec Cell / Pay</span>
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-purple-700">0821234567</span>
+                                <button type="button" onclick="copyToClipboard('0821234567', 'Cell number copied!')" class="text-purple-600 hover:text-purple-800 text-[10px]" title="Copy Cell">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 border border-purple-200 p-4 rounded-xl text-xs text-purple-800 space-y-1">
+                    <div class="flex justify-between font-bold text-sm text-chocDark mb-1">
+                        <span>Items Subtotal:</span>
+                        <span id="modalGrandTotal" class="text-purple-700 font-serif">R0.00</span>
+                    </div>
+                    <p class="text-[11px] text-purple-600 italic mb-2">* Delivery fees will be calculated and confirmed upon receipt.</p>
+                    <p class="mt-2"><i class="fa-brands fa-whatsapp text-green-600 text-sm mr-1"></i> Submitting opens WhatsApp with your pre-formatted order receipt & banking details.</p>
+                </div>
+
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 text-base shadow-lg transition">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                    <span>Place Order via WhatsApp</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Thank You Success Modal -->
+    <div id="orderSuccessModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-chocDark/80 backdrop-blur-sm transition-opacity">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 text-center space-y-4">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                <i class="fa-solid fa-check text-3xl text-green-500"></i>
+            </div>
+            <div>
+                <h3 class="font-serif font-bold text-2xl text-chocDark mb-1" id="successTitle">Thank You!</h3>
+                <p class="text-gray-600 text-xs">Your order receipt has been created and sent to WhatsApp.</p>
+            </div>
+
+            <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 text-left space-y-2">
+                <p class="text-xs font-bold text-purple-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-receipt text-purple-600"></i> Payment Info (Banking Details)
+                </p>
+                <div class="text-xs font-mono space-y-1.5 bg-white p-3 rounded-lg border border-purple-100">
+                    <div class="flex justify-between"><span class="text-gray-500">Bank:</span> <strong class="text-chocDark">Capitec Bank</strong></div>
+                    <div class="flex justify-between"><span class="text-gray-500">Name:</span> <strong class="text-chocDark">[YOUR BUSINESS NAME]</strong></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">Account No:</span> 
+                        <span class="flex items-center gap-1.5">
+                            <strong class="text-purple-700">1234567890</strong>
+                            <button onclick="copyToClipboard('1234567890', 'Account number copied!')" class="text-purple-600 hover:text-purple-800 text-xs"><i class="fa-regular fa-copy"></i></button>
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">Cell / Pay:</span> 
+                        <span class="flex items-center gap-1.5">
+                            <strong class="text-purple-700">0821234567</strong>
+                            <button onclick="copyToClipboard('0821234567', 'Cell number copied!')" class="text-purple-600 hover:text-purple-800 text-xs"><i class="fa-regular fa-copy"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <p class="text-[11px] text-purple-700 italic text-center">* Please use your name as payment reference.</p>
+            </div>
+
+            <button onclick="closeSuccessModal()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-xl transition duration-200 shadow-md">
+                Close & Return to Menu
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-chocDark text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 border border-purple-500/30 transition-all duration-300 opacity-0 pointer-events-none translate-y-4">
+        <i class="fa-solid fa-circle-check text-purple-400"></i>
+        <span id="toastMsg" class="text-sm font-medium">Added to basket!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-chocDark text-purple-100/70 py-8 border-t border-chocSoft mt-12">
+        <div class="max-w-6xl mx-auto px-4 text-center space-y-3">
+            <h4 class="font-serif font-bold text-lg text-white">WAFFLE & WHISK CORNER</h4>
+            <p class="text-xs text-purple-400/80 italic">"Where Every Corner is Sweet"</p>
+            <p class="text-xs text-gray-400">&copy; 2026 Waffle and Whisk Corner. All prices in South African Rand (R).</p>
+        </div>
+    </footer>
+
+    <!-- Swiper JS Script -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+    <script>
+        // Store Operating Hours Check (Open: 08:00, Closes: 19:00, Delivery from 10:00)
+        function isStoreOpen() {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            const openMinutes = 8 * 60;       // 08:00
+            const closeMinutes = 19 * 60;   // 19:00
+            return currentMinutes >= openMinutes && currentMinutes <= closeMinutes;
+        }
+
+        // Swiper Banner Init
+        const swiper = new Swiper('.mySwiper', {
+            effect: 'fade',
+            fadeEffect: { crossFade: true },
+            speed: 1200,
+            parallax: true,
+            autoplay: { delay: 4500, disableOnInteraction: false },
+            pagination: { el: '.swiper-pagination', clickable: true },
+            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+        });
+
+        // Category Type Mapping
+        const categoryLabels = {
+            'waffles': 'Menu Waffle',
+            'pops': 'Waffle Pop',
+            'crepes': 'Crepes',
+            'crepesushi': 'Crepesushi',
+            'tacoffles': 'Tacoffle'
+        };
+
+        const baseWaffles = [
+            // MENU WAFFLES
+            { id: 'w1', category: 'waffles', name: 'Plain (2 waffles)', price: 15.00, desc: 'Freshly baked golden traditional plain waffles.', image: 'images/plainwaffles.jpeg' },
+            { id: 'w2', category: 'waffles', name: 'Chocolate & Syrup (3 waffles)', price: 40.00, desc: '3 crisp waffles drizzled in warm chocolate & golden syrup.', image: 'images/waffle with chocolate.jpeg' },
+            { id: 'w3', category: 'waffles', name: 'Chocolate & Strawberry (3 waffles)', price: 40.00, desc: '3 fresh waffles topped with rich chocolate & sweet strawberries.', image: 'images/waffle with cream.jpeg' },
+            { id: 'w4', category: 'waffles', name: 'Whipped Cream & Raspberry (3 waffles)', price: 50.00, desc: '3 fluffy waffles topped with velvety whipped cream & sweet toppings.', image: 'images/waffle.jpeg' },
+            
+            // WAFFLE POPS
+            { id: 'p1', category: 'pops', name: 'Chocolate Sauce Waffle Pop', price: 7.00, desc: 'A fun handheld waffle pop drizzled with rich chocolate sauce.', image: 'images/wafflepopR7.jpeg' },
+            { id: 'p2', category: 'pops', name: 'Filling & Sprinkles Waffle Pop', price: 10.00, desc: 'A delicious waffle pop packed with delicious filling and sprinkles.', image: 'images/wafflepop.jpeg' },
+            
+            // CREPES
+            { id: 'c1', category: 'crepes', name: 'Crepes Cup with Chocolate Sauce', price: 30.00, desc: 'Fresh crepes served in a cup, swimming in chocolate sauce.', image: 'images/creepcup.jpeg', video: 'videos/crepes-folded.mp4' },
+            { id: 'c2', category: 'crepes', name: 'Crepes Cup with Vanilla Sauce', price: 30.00, desc: 'Fresh crepes served in a cup, generously topped with vanilla sauce.', image: 'images/Creepcup VANILLA.jpeg', video: 'videos/crepes-folded.mp4' },
+            { id: 'c3', category: 'crepes', name: 'Plated Crepe with Chocolate Sauce', price: 30.00, desc: 'Freshly prepared plated crepe drizzled with rich chocolate sauce.', image: 'images/crepeplate.jpeg' },
+            
+            // CREPESUSHI
+            { id: 's1', category: 'crepesushi', name: 'Chocolate Sauce & Banana', price: 25.00, desc: 'Rolled crepe sushi slices served with banana & chocolate drizzle.', image: 'images/crepesushi.jpeg', video: 'videos/creepes.mp4' },
+            { id: 's2', category: 'crepesushi', name: 'Strawberry & Chocolate Sauce', price: 30.00, desc: 'Crepe sushi rolls stuffed with fresh strawberry & chocolate sauce.', image: 'images/creepsushistrawberry.jpeg', video: 'videos/creepes.mp4' },
+
+            // TACOFFLES
+            { id: 't1', category: 'tacoffles', name: 'Cream, Crushed Biscuits & Sprinkles', price: 35.00, desc: 'Taco-shaped waffle filled with cream, crushed biscuits & sprinkles.', image: 'images/tacoffles2.jpeg', video: 'videos/tacoffles.mp4' },
+            { id: 't2', category: 'tacoffles', name: 'Cream, Strawberries & Chocolate', price: 45.00, desc: 'Taco-shaped waffle stuffed with cream, fresh strawberries & chocolate.', image: 'images/tacoffles.jpeg', video: 'videos/tacoffles.mp4' }
+        ];
+
+        // ADD-ONS
+        const addOnsData = [
+            { id: 'a1', name: 'Biscuits', price: 3.00 },
+            { id: 'a2', name: 'Strawberry', price: 7.50 },
+            { id: 'a3', name: 'Chocolate', price: 5.00 },
+            { id: 'a4', name: 'Raspberry', price: 7.50 },
+            { id: 'a5', name: 'Whipped Cream', price: 5.00 },
+            { id: 'a6', name: 'Caramel Cream', price: 8.50 }
+        ];
+
+        let selectedBaseId = 'w1';
+        let selectedAddonIds = new Set();
+        let favoriteIds = new Set();
+        let activeCategoryFilter = 'all';
+        let searchQuery = '';
+        let itemQty = 1;
+        let cart = [];
+
+        // Modal specific state variables
+        let modalActiveBase = null;
+        let modalSelectedAddons = new Set();
+        let modalQty = 1;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderBases();
+            renderAddons();
+            updateLiveCalculator();
+        });
+
+        function filterCategory(cat) {
+            activeCategoryFilter = cat;
+            
+            const categoryBtns = ['all', 'waffles', 'pops', 'crepes', 'crepesushi', 'tacoffles'];
+            categoryBtns.forEach(c => {
+                const btn = document.getElementById(`filter-btn-${c}`);
+                if (btn) {
+                    if (c === cat) {
+                        btn.className = "px-3 py-1.5 text-xs font-bold rounded-full transition whitespace-nowrap bg-purple-600 text-white shadow-sm";
+                    } else {
+                        btn.className = "px-3 py-1.5 text-xs font-bold rounded-full transition whitespace-nowrap bg-purple-50 text-purple-700 hover:bg-purple-100";
+                    }
+                }
+            });
+
+            renderBases();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val.trim().toLowerCase();
+            const btnClear = document.getElementById('btnClearSearch');
+            if (btnClear) {
+                if (searchQuery.length > 0) btnClear.classList.remove('hidden');
+                else btnClear.classList.add('hidden');
+            }
+            renderBases();
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('menuSearchInput');
+            if (input) input.value = '';
+            handleSearch('');
+        }
+
+        function toggleFavorite(id) {
+            if (favoriteIds.has(id)) {
+                favoriteIds.delete(id);
+                showToast('Removed from favorites');
+            } else {
+                favoriteIds.add(id);
+                showToast('Added to favorites! ❤️');
+            }
+            renderBases();
+        }
+
+        function renderBases() {
+            const containers = {
+                'waffles': document.getElementById('wafflesContainer'),
+                'pops': document.getElementById('popsContainer'),
+                'crepes': document.getElementById('crepesContainer'),
+                'crepesushi': document.getElementById('crepesushiContainer'),
+                'tacoffles': document.getElementById('tacofflesContainer')
+            };
+
+            Object.values(containers).forEach(c => { if(c) c.innerHTML = ''; });
+
+            baseWaffles.forEach(base => {
+                const matchesCategory = activeCategoryFilter === 'all' || base.category === activeCategoryFilter;
+                const matchesSearch = base.name.toLowerCase().includes(searchQuery) || base.desc.toLowerCase().includes(searchQuery);
+
+                if (!matchesCategory || !matchesSearch) return;
+
+                const isSelected = base.id === selectedBaseId;
+                const safeName = base.name.replace(/'/g, "\\'");
+                const isFav = favoriteIds.has(base.id);
+
+                const cardHtml = `
+                    <div onclick="selectBase('${base.id}')" 
+                         id="base-card-${base.id}"
+                         class="waffle-card relative rounded-2xl border border-purple-100 cursor-pointer overflow-hidden flex flex-col justify-between hover:border-purple-400 bg-white ${isSelected ? 'selected' : ''}">
+                        
+                        <!-- Favorite Heart Toggle Button -->
+                        <button onclick="event.stopPropagation(); toggleFavorite('${base.id}')" 
+                                class="absolute top-2 left-2 z-20 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md shadow-sm flex items-center justify-center text-xs transition active:scale-90 hover:bg-white"
+                                title="Bookmark Treat">
+                            <i class="${isFav ? 'fa-solid text-red-500' : 'fa-regular text-gray-400'} fa-heart"></i>
+                        </button>
+
+                        <!-- Full Image Fit Container -->
+                        <div class="relative aspect-[4/3] w-full bg-purple-50/80 overflow-hidden flex items-center justify-center p-2">
+                            <img src="${base.image}" 
+                                 alt="${base.name}" 
+                                 class="w-full h-full object-contain object-center transition-transform duration-300 hover:scale-105" 
+                                 loading="lazy" />
+                            
+                            <span class="absolute top-2 right-2 bg-chocDark/90 backdrop-blur-md text-purple-300 font-extrabold text-xs px-2.5 py-1 rounded-full border border-purple-500/30 shadow-md z-10">
+                                R${base.price.toFixed(2)}
+                            </span>
+
+                            ${base.video ? `
+                                <button onclick="event.stopPropagation(); openVideoModal('${base.video}', '${safeName}')" 
+                                        class="absolute bottom-2 left-2 bg-chocDark/80 hover:bg-purple-600 text-purple-200 text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-md transition shadow-md z-10">
+                                    <i class="fa-solid fa-circle-play text-purple-400"></i> Watch Clip
+                                </button>
+                            ` : ''}
+                        </div>
+
+                        <div class="p-4 flex flex-col justify-between flex-grow">
+                            <div>
+                                <h4 class="font-bold text-sm text-chocDark mb-1">${base.name}</h4>
+                                <p class="text-xs text-gray-500 leading-relaxed mb-3">${base.desc}</p>
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t border-purple-50">
+                                <span class="text-xs font-semibold px-3 py-1 rounded-full transition ${isSelected ? 'bg-purple-600 text-white shadow-sm' : 'bg-purple-50 text-purple-700 hover:bg-purple-100'}">
+                                    ${isSelected ? 'Selected' : 'Select'}
+                                </span>
+                                <!-- Card Level Add-ons Button -->
+                                <button onclick="event.stopPropagation(); openItemAddonsModal('${base.id}')" 
+                                        class="bg-purple-100 hover:bg-purple-600 text-purple-700 hover:text-white text-xs font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                                    <i class="fa-solid fa-plus text-[10px]"></i> Add-ons
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if(containers[base.category]) {
+                    containers[base.category].innerHTML += cardHtml;
+                }
+            });
+
+            Object.keys(containers).forEach(cat => {
+                const header = document.getElementById(`header-${cat}`);
+                const container = containers[cat];
+                if (container && header) {
+                    const hasItems = container.children.length > 0;
+                    container.style.display = hasItems ? 'grid' : 'none';
+                    header.style.display = hasItems ? 'flex' : 'none';
+                }
+            });
+        }
+
+        function renderAddons() {
+            const container = document.getElementById('addonsContainer');
+            container.innerHTML = '';
+
+            addOnsData.forEach(addon => {
+                const isChecked = selectedAddonIds.has(addon.id);
+                container.innerHTML += `
+                    <div onclick="toggleAddon('${addon.id}')" class="p-3.5 rounded-xl border ${isChecked ? 'border-purple-500 bg-purple-50/80' : 'border-gray-200 bg-white'} cursor-pointer flex items-center justify-between hover:border-purple-300 transition active:scale-98">
+                        <div class="flex items-center gap-3">
+                            <div class="w-5 h-5 rounded border ${isChecked ? 'bg-purple-600 border-purple-600 text-white' : 'border-gray-300'} flex items-center justify-center text-xs">
+                                ${isChecked ? '<i class="fa-solid fa-check"></i>' : ''}
+                            </div>
+                            <span class="text-sm font-semibold text-chocDark">${addon.name}</span>
+                        </div>
+                        <span class="text-xs font-bold text-purple-700">+R${addon.price.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // Card Add-ons Modal Functions
+        function openItemAddonsModal(baseId) {
+            modalActiveBase = baseWaffles.find(b => b.id === baseId);
+            if (!modalActiveBase) return;
+
+            modalSelectedAddons.clear();
+            modalQty = 1;
+
+            document.getElementById('modalItemTitleName').innerText = modalActiveBase.name;
+            document.getElementById('modalItemImg').src = modalActiveBase.image;
+            document.getElementById('modalItemBasePrice').innerText = `Base Price: R${modalActiveBase.price.toFixed(2)}`;
+            document.getElementById('modalItemQty').innerText = modalQty;
+
+            renderModalAddons();
+            updateModalCalculator();
+
+            document.getElementById('itemAddonsModal').classList.remove('hidden');
+        }
+
+        function closeItemAddonsModal() {
+            document.getElementById('itemAddonsModal').classList.add('hidden');
+        }
+
+        function renderModalAddons() {
+            const container = document.getElementById('modalAddonsContainer');
+            container.innerHTML = '';
+
+            addOnsData.forEach(addon => {
+                const isChecked = modalSelectedAddons.has(addon.id);
+                container.innerHTML += `
+                    <div onclick="toggleModalAddon('${addon.id}')" class="p-3 rounded-xl border ${isChecked ? 'border-purple-500 bg-purple-50/80' : 'border-gray-200 bg-white'} cursor-pointer flex items-center justify-between hover:border-purple-300 transition">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-4 h-4 rounded border ${isChecked ? 'bg-purple-600 border-purple-600 text-white' : 'border-gray-300'} flex items-center justify-center text-[10px]">
+                                ${isChecked ? '<i class="fa-solid fa-check"></i>' : ''}
+                            </div>
+                            <span class="text-xs font-semibold text-chocDark">${addon.name}</span>
+                        </div>
+                        <span class="text-xs font-bold text-purple-700">+R${addon.price.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleModalAddon(id) {
+            if (modalSelectedAddons.has(id)) {
+                modalSelectedAddons.delete(id);
+            } else {
+                modalSelectedAddons.add(id);
+            }
+            renderModalAddons();
+            updateModalCalculator();
+        }
+
+        function changeModalQty(delta) {
+            modalQty = Math.max(1, modalQty + delta);
+            document.getElementById('modalItemQty').innerText = modalQty;
+            updateModalCalculator();
+        }
+
+        function updateModalCalculator() {
+            if (!modalActiveBase) return;
+            let unitPrice = modalActiveBase.price;
+            modalSelectedAddons.forEach(id => {
+                const addon = addOnsData.find(a => a.id === id);
+                if (addon) unitPrice += addon.price;
+            });
+            const total = unitPrice * modalQty;
+            document.getElementById('modalItemTotalPrice').innerText = `R${total.toFixed(2)}`;
+        }
+
+        function addModalItemToCart() {
+            if (!isStoreOpen()) {
+                showToast('Store is closed! Operating hours are 08:00 to 19:00 (Delivery starts at 10:00).');
+                closeItemAddonsModal();
+                return;
+            }
+
+            if (!modalActiveBase) return;
+
+            const chosenAddons = Array.from(modalSelectedAddons).map(id => addOnsData.find(a => a.id === id));
+            let unitPrice = modalActiveBase.price;
+            chosenAddons.forEach(a => unitPrice += a.price);
+
+            const cartItem = {
+                cartItemId: Date.now(),
+                base: modalActiveBase,
+                addons: chosenAddons,
+                quantity: modalQty,
+                unitPrice: unitPrice,
+                itemTotal: unitPrice * modalQty,
+                notes: 'Customized via Add-ons button'
+            };
+
+            cart.push(cartItem);
+            updateCartUI();
+            closeItemAddonsModal();
+            showToast(`Added ${modalQty}x ${modalActiveBase.name} to basket!`);
+        }
+
+        function selectBase(id) {
+            selectedBaseId = id;
+            renderBases();
+            updateLiveCalculator();
+            updateStepTracker();
+        }
+
+        function toggleAddon(id) {
+            if (selectedAddonIds.has(id)) {
+                selectedAddonIds.delete(id);
+            } else {
+                selectedAddonIds.add(id);
+            }
+            renderAddons();
+            updateLiveCalculator();
+            updateStepTracker();
+        }
+
+        function updateStepTracker() {
+            const st2 = document.getElementById('stepTracker2');
+            if (selectedAddonIds.size > 0 && st2) {
+                st2.className = "flex items-center gap-2 text-purple-700";
+                st2.children[0].className = "w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px]";
+            }
+        }
+
+        function changeQuantity(delta) {
+            itemQty = Math.max(1, itemQty + delta);
+
+            const qtyText = itemQty.toString();
+            const isDisabled = itemQty <= 1;
+
+            const itemQtyEl = document.getElementById('itemQuantity');
+            if (itemQtyEl) itemQtyEl.innerText = qtyText;
+
+            const floatingQtyEl = document.getElementById('floatingQty');
+            if (floatingQtyEl) floatingQtyEl.innerText = qtyText;
+
+            const btnMinus = document.getElementById('btnMinus');
+            if (btnMinus) btnMinus.disabled = isDisabled;
+
+            const btnMinusFloating = document.getElementById('btnMinusFloating');
+            if (btnMinusFloating) btnMinusFloating.disabled = isDisabled;
+
+            updateLiveCalculator();
+        }
+
+        function getCurrentItemSubtotal() {
+            const baseObj = baseWaffles.find(b => b.id === selectedBaseId);
+            let unitPrice = baseObj ? baseObj.price : 0;
+
+            selectedAddonIds.forEach(addonId => {
+                const addOnObj = addOnsData.find(a => a.id === addonId);
+                if (addOnObj) unitPrice += addOnObj.price;
+            });
+
+            return unitPrice * itemQty;
+        }
+
+        function updateLiveCalculator() {
+            const baseObj = baseWaffles.find(b => b.id === selectedBaseId);
+            const categoryName = baseObj ? (categoryLabels[baseObj.category] || 'Item') : '-';
+
+            document.getElementById('summaryCategoryName').innerText = categoryName;
+            document.getElementById('summaryBaseName').innerText = baseObj ? baseObj.name : 'Select an item';
+
+            const summaryAddonsList = document.getElementById('summaryAddonsList');
+            summaryAddonsList.innerHTML = '';
+
+            if (selectedAddonIds.size === 0) {
+                summaryAddonsList.innerHTML = '<li class="italic text-gray-400">No extra add-ons selected</li>';
+            } else {
+                selectedAddonIds.forEach(id => {
+                    const addon = addOnsData.find(a => a.id === id);
+                    if (addon) {
+                        summaryAddonsList.innerHTML += `<li>+ ${addon.name} (R${addon.price.toFixed(2)})</li>`;
+                    }
+                });
+            }
+
+            const total = getCurrentItemSubtotal();
+            const formattedTotal = `R${total.toFixed(2)}`;
+
+            document.getElementById('liveTotalPrice').innerText = formattedTotal;
+
+            const floatingSubtotal = document.getElementById('floatingSideSubtotal');
+            if (floatingSubtotal) {
+                floatingSubtotal.innerText = formattedTotal;
+            }
+        }
+
+        function addToCart() {
+            if (!isStoreOpen()) {
+                showToast('Store is closed! Operating hours are 08:00 to 19:00 (Delivery starts at 10:00).');
+                return;
+            }
+
+            const baseObj = baseWaffles.find(b => b.id === selectedBaseId);
+            const chosenAddons = Array.from(selectedAddonIds).map(id => addOnsData.find(a => a.id === id));
+            const notes = document.getElementById('itemNotes').value.trim();
+
+            let unitPrice = baseObj.price;
+            chosenAddons.forEach(a => unitPrice += a.price);
+
+            const cartItem = {
+                cartItemId: Date.now(),
+                base: baseObj,
+                addons: chosenAddons,
+                quantity: itemQty,
+                unitPrice: unitPrice,
+                itemTotal: unitPrice * itemQty,
+                notes: notes
+            };
+
+            cart.push(cartItem);
+            updateCartUI();
+            
+            const btn = document.getElementById('mainAddToBasketBtn');
+            if (btn) {
+                btn.classList.add('btn-bounce');
+                setTimeout(() => btn.classList.remove('btn-bounce'), 300);
+            }
+
+            showToast(`Added ${itemQty}x ${baseObj.name} to basket!`);
+
+            document.getElementById('itemNotes').value = '';
+            itemQty = 1;
+
+            if (document.getElementById('itemQuantity')) document.getElementById('itemQuantity').innerText = '1';
+            if (document.getElementById('floatingQty')) document.getElementById('floatingQty').innerText = '1';
+            if (document.getElementById('btnMinus')) document.getElementById('btnMinus').disabled = true;
+            if (document.getElementById('btnMinusFloating')) document.getElementById('btnMinusFloating').disabled = true;
+
+            updateLiveCalculator();
+        }
+
+        function updateCartItemQuantity(cartItemId, delta) {
+            const item = cart.find(i => i.cartItemId === cartItemId);
+            if (!item) return;
+
+            item.quantity += delta;
+            
+            if (item.quantity <= 0) {
+                removeFromCart(cartItemId);
+                return;
+            }
+
+            item.itemTotal = item.unitPrice * item.quantity;
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const cartItemsContainer = document.getElementById('cartItemsContainer');
+            const cartBadgeCount = document.getElementById('cartBadgeCount');
+            const cartSubtotal = document.getElementById('cartSubtotal');
+            const cartGrandTotal = document.getElementById('cartGrandTotal');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartBadgeCount.innerText = totalCount;
+
+            let grandTotal = 0;
+            cartItemsContainer.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `
+                    <div class="text-center py-12 text-gray-400 space-y-3">
+                        <i class="fa-solid fa-basket-shopping text-4xl text-purple-300"></i>
+                        <p class="font-medium text-sm">Your basket is empty right now.</p>
+                        <p class="text-xs text-gray-400">Customise an order above to get started!</p>
+                    </div>
+                `;
+                checkoutBtn.disabled = true;
+            } else {
+                checkoutBtn.disabled = false;
+                cart.forEach(item => {
+                    grandTotal += item.itemTotal;
+                    
+                    const categoryName = categoryLabels[item.base.category] || 'Item';
+                    const addonsText = item.addons.length > 0 
+                        ? item.addons.map(a => a.name).join(', ') 
+                        : 'No extras';
+
+                    cartItemsContainer.innerHTML += `
+                        <div class="bg-purple-50/60 p-4 rounded-xl border border-purple-100 relative space-y-2">
+                            <button onclick="removeFromCart(${item.cartItemId})" class="absolute top-3 right-3 text-gray-400 hover:text-berryRed text-sm transition-colors" title="Remove Item">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+
+                            <div class="pr-6">
+                                <span class="text-[10px] font-bold uppercase tracking-wider bg-purple-200 text-purple-800 px-2 py-0.5 rounded-md inline-block mb-1">${categoryName}</span>
+                                <h4 class="font-bold text-sm text-chocDark">${item.base.name}</h4>
+                            </div>
+
+                            <p class="text-xs text-gray-600"><span class="font-semibold text-purple-700">Extras:</span> ${addonsText}</p>
+                            ${item.notes ? `<p class="text-xs text-gray-500 italic bg-white p-2 rounded border border-purple-100">"${item.notes}"</p>` : ''}
+                            
+                            <div class="flex justify-between items-center pt-2 border-t border-purple-100/80">
+                                <div class="flex items-center gap-1 bg-white px-2 py-1 rounded-lg border border-purple-200 shadow-sm">
+                                    <button onclick="updateCartItemQuantity(${item.cartItemId}, -1)" class="w-6 h-6 flex items-center justify-center font-extrabold text-purple-600 hover:bg-purple-100 rounded text-sm transition" title="Decrease Quantity">-</button>
+                                    <span class="font-bold text-chocDark text-xs px-1.5 min-w-[1.25rem] text-center">${item.quantity}</span>
+                                    <button onclick="updateCartItemQuantity(${item.cartItemId}, 1)" class="w-6 h-6 flex items-center justify-center font-extrabold text-purple-600 hover:bg-purple-100 rounded text-sm transition" title="Increase Quantity">+</button>
+                                </div>
+
+                                <div class="text-right">
+                                    <span class="text-[10px] text-gray-400 block">Unit: R${item.unitPrice.toFixed(2)}</span>
+                                    <span class="font-bold text-sm text-purple-800">R${item.itemTotal.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            cartSubtotal.innerText = `R${grandTotal.toFixed(2)}`;
+            cartGrandTotal.innerText = `R${grandTotal.toFixed(2)}`;
+            document.getElementById('modalGrandTotal').innerText = `R${grandTotal.toFixed(2)}`;
+        }
+
+        function removeFromCart(cartItemId) {
+            cart = cart.filter(item => item.cartItemId !== cartItemId);
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            const drawer = document.getElementById('cartDrawer');
+            const overlay = document.getElementById('cartOverlay');
+            
+            const isOpen = !drawer.classList.contains('translate-x-full');
+            if (isOpen) {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        function openCheckoutModal() {
+            if (!isStoreOpen()) {
+                showToast('Store is closed! Operating hours are 08:00 to 19:00 (Delivery starts at 10:00).');
+                return;
+            }
+            if (cart.length === 0) return;
+            toggleCart();
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('orderSuccessModal').classList.add('hidden');
+        }
+
+        function openVideoModal(videoSrc, title) {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('modalVideoPlayer');
+            const titleEl = document.getElementById('modalVideoTitle');
+            
+            player.src = videoSrc;
+            titleEl.innerText = title;
+            modal.classList.remove('hidden');
+            player.play().catch(e => console.log('Autoplay prevented:', e));
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('modalVideoPlayer');
+            
+            player.pause();
+            player.src = '';
+            modal.classList.add('hidden');
+        }
+
+        function copyToClipboard(text, toastMessage) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(toastMessage || 'Copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy');
+            });
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function handleOrderSubmit(event) {
+            event.preventDefault();
+
+            if (!isStoreOpen()) {
+                showToast('Store is closed! Operating hours are 08:00 to 19:00 (Delivery starts at 10:00).');
+                closeCheckoutModal();
+                return;
+            }
+
+            const name = document.getElementById('custName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const orderType = document.querySelector('input[name="orderType"]:checked').value;
+            const address = document.getElementById('custAddress').value.trim();
+
+            let grandTotal = 0;
+            let orderSummaryText = '';
+
+            cart.forEach((item, index) => {
+                grandTotal += item.itemTotal;
+                const categoryName = categoryLabels[item.base.category] || 'Item';
+                const addonsList = item.addons.length > 0 
+                    ? item.addons.map(a => a.name).join(', ') 
+                    : 'None';
+
+                orderSummaryText += `${index + 1}. *${item.quantity}x ${item.base.name}*\n`;
+                orderSummaryText += `   - Type: *${categoryName}*\n`;
+                orderSummaryText += `   - Extras: ${addonsList}\n`;
+                if (item.notes) {
+                    orderSummaryText += `   - Notes: ${item.notes}\n`;
+                }
+                orderSummaryText += `   - Subtotal: R${item.itemTotal.toFixed(2)}\n\n`;
+            });
+
+            let message = `*NEW ORDER - WAFFLE & WHISK CORNER*\n`;
+            message += `_Where Every Corner is Sweet_\n`;
+            message += `------------------------------------\n\n`;
+            message += `*CUSTOMER DETAILS*\n`;
+            message += `👤 Name: ${name}\n`;
+            message += `📞 Phone: ${phone}\n`;
+            
+            if(orderType === 'Delivery') {
+                message += `🛵 Type: ${orderType} *(Delivery starts at 10:00 • Fee depends on area)*\n`;
+            } else {
+                message += `🏪 Type: ${orderType}\n`;
+            }
+
+            if (address) {
+                message += `📍 Details/Address: ${address}\n`;
+            }
+            message += `\n------------------------------------\n`;
+            message += `*ORDER SUMMARY*\n\n`;
+            message += orderSummaryText;
+            message += `------------------------------------\n`;
+            message += `*ITEMS TOTAL: R${grandTotal.toFixed(2)}*\n`;
+            if(orderType === 'Delivery') {
+                message += `_+ Delivery Fee to be added_\n`;
+            }
+            message += `------------------------------------\n\n`;
+            
+            message += `💳 *BANKING DETAILS FOR EFT / PAYMENT*\n`;
+            message += `🏦 Bank: Capitec Bank\n`;
+            message += `👤 Account Holder: [YOUR BUSINESS NAME]\n`;
+            message += `🔢 Account No: 1234567890\n`;
+            message += `📞 Capitec Pay / Cell: 0821234567\n`;
+            message += `------------------------------------\n`;
+            message += `Thank you! Looking forward to my order! 🧇✨`;
+
+            const businessPhoneNumber = "27821234567"; // Placeholder phone number
+            const encodedMsg = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${businessPhoneNumber}?text=${encodedMsg}`;
+
+            window.open(whatsappUrl, '_blank');
+
+            closeCheckoutModal();
+
+            const firstName = name.split(' ')[0];
+            document.getElementById('successTitle').innerText = `Thank you for your order, ${firstName}!`;
+            document.getElementById('orderSuccessModal').classList.remove('hidden');
+
+            triggerConfetti();
+
+            cart = [];
+            updateCartUI();
+            document.getElementById('orderForm').reset();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+            }, 2800);
+        }
+    </script>
+</body>
+</html>
